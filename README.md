@@ -18,6 +18,7 @@ for quickly generating HTML and XML tags and attributes.
   syntax](http://docs.emmet.io/abbreviations/syntax/), e.g.
   `html>head>title^body>h1#title+p.myclass`
 
+[![asciicast](https://asciinema.org/a/81948.png)](https://asciinema.org/a/81948)
 
 # Installation
 
