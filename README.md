@@ -50,3 +50,7 @@ for quickly generating HTML and XML tags and attributes.
 * vim's indentation is not taken into account, tabs only and it always starts at
   column 0
 * No abbreviations implemented
+
+# Related Work
+
+* [emmet-vim](https://github.com/mattn/emmet-vim)
