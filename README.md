@@ -54,3 +54,4 @@ for quickly generating HTML and XML tags and attributes.
 # Related Work
 
 * [emmet-vim](https://github.com/mattn/emmet-vim)
+* [Sparkup](https://github.com/rstacruz/sparkup)
