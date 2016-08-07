@@ -230,62 +230,68 @@ def parse(emmet):
 
 
 tests = {
+		## functionality tests
+
 		# simple tags
 		'html': '<html></html>',
 
 		# childen
-		'html>body': '<html>\n\t<body></body>\n</html>',
+		'html>body':   '<html>\n\t<body></body>\n</html>',
 		'html>body>p': '<html>\n\t<body>\n\t\t<p></p>\n\t</body>\n</html>',
 
 		# siblings
 		'html+body': '<html></html>\n<body></body>',
 
 		# parent
-		'html>body>p^head': '<html>\n\t<body>\n\t\t<p></p>\n\t</body>\n\t<head></head>\n</html>',
+		'html>body>p^head':       '<html>\n\t<body>\n\t\t<p></p>\n\t</body>\n\t<head></head>\n</html>',
 		'html>body>p^head^html2': '<html>\n\t<body>\n\t\t<p></p>\n\t</body>\n\t<head></head>\n</html>\n<html2></html2>',
-		'html>body>p^^head': '<html>\n\t<body>\n\t\t<p></p>\n\t</body>\n</html>\n<head></head>',
-		'html>body>p>p^^^head': '<html>\n\t<body>\n\t\t<p>\n\t\t\t<p></p>\n\t\t</p>\n\t</body>\n</html>\n<head></head>',
+		'html>body>p^^head':      '<html>\n\t<body>\n\t\t<p></p>\n\t</body>\n</html>\n<head></head>',
+		'html>body>p>p^^^head':   '<html>\n\t<body>\n\t\t<p>\n\t\t\t<p></p>\n\t\t</p>\n\t</body>\n</html>\n<head></head>',
 
 		# id
-		'html#html': '<html id="html"></html>',
+		'html#html':            '<html id="html"></html>',
 		'html#top>body#bottom': '<html id="top">\n\t<body id="bottom"></body>\n</html>',
 
 		# class
-		'html.html': '<html class="html"></html>',
-		'html.top>body.bottom': '<html class="top">\n\t<body class="bottom"></body>\n</html>',
-		'html.top>body.bottom.right': '<html class="top">\n\t<body class="bottom right"></body>\n</html>',
-		'html.top#html>body.bottom#body': '<html class="top" id="html">\n\t<body class="bottom" id="body"></body>\n</html>',
+		'html.html':                           '<html class="html"></html>',
+		'html.top>body.bottom':                '<html class="top">\n\t<body class="bottom"></body>\n</html>',
+		'html.top>body.bottom.right':          '<html class="top">\n\t<body class="bottom right"></body>\n</html>',
+		'html.top#html>body.bottom#body':      '<html class="top" id="html">\n\t<body class="bottom" id="body"></body>\n</html>',
 		'html.top.left#html>body.bottom#body': '<html class="top left" id="html">\n\t<body class="bottom" id="body"></body>\n</html>',
 
 		# multiplication
-		'html*3': '<html></html>\n<html></html>\n<html></html>',
-		'html*2>body': '<html>\n\t<body></body>\n</html>\n<html>\n\t<body></body>\n</html>',
-		'html*2>body>h1': '<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>\n<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>',
-		'html*2>body#body': '<html>\n\t<body id="body"></body>\n</html>\n<html>\n\t<body id="body"></body>\n</html>',
-		'html*2>body>h1#h1': '<html>\n\t<body>\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>\n<html>\n\t<body>\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>',
-		'html*2>body#body>h1#h1': '<html>\n\t<body id="body">\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>\n<html>\n\t<body id="body">\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>',
-		'html*2>body#body.exer': '<html>\n\t<body id="body" class="exer"></body>\n</html>\n<html>\n\t<body id="body" class="exer"></body>\n</html>',
+		'html*3':                     '<html></html>\n<html></html>\n<html></html>',
+		'html*2>body':                '<html>\n\t<body></body>\n</html>\n<html>\n\t<body></body>\n</html>',
+		'html*2>body>h1':             '<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>\n<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>',
+		'html*2>body#body':           '<html>\n\t<body id="body"></body>\n</html>\n<html>\n\t<body id="body"></body>\n</html>',
+		'html*2>body>h1#h1':          '<html>\n\t<body>\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>\n<html>\n\t<body>\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>',
+		'html*2>body#body>h1#h1':     '<html>\n\t<body id="body">\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>\n<html>\n\t<body id="body">\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>',
+		'html*2>body#body.exer':      '<html>\n\t<body id="body" class="exer"></body>\n</html>\n<html>\n\t<body id="body" class="exer"></body>\n</html>',
 		'html*2>body#body.exer.cise': '<html>\n\t<body id="body" class="exer cise"></body>\n</html>\n<html>\n\t<body id="body" class="exer cise"></body>\n</html>',
 		# test parent stacking
-		'html*2>body^html2': '<html>\n\t<body></body>\n</html>\n<html>\n\t<body></body>\n</html>\n<html2></html2>',
-		'html*2>body>h1^html2': '<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n\t<html2></html2>\n</html>\n<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n\t<html2></html2>\n</html>',
-		'html*2>body>h1^^html2': '<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>\n<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>\n<html2></html2>\n<html2></html2>',
+		'html*2>body^html2':          '<html>\n\t<body></body>\n</html>\n<html>\n\t<body></body>\n</html>\n<html2></html2>',
+		'html*2>body>h1^html2':       '<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n\t<html2></html2>\n</html>\n<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n\t<html2></html2>\n</html>',
+		'html*2>body>h1^^html2':      '<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>\n<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>\n<html2></html2>\n<html2></html2>',
 
 
-		# error handling
+		## error handling
 
 		# ignore whitespace
-		'html ': '<html></html>',
+		'html ':       '<html></html>',
 		'html > body': '<html>\n\t<body></body>\n</html>',
 
 		# test wrong input
-		# >html
-		# html^body
-		# ^html
-		# +html
-		# html>>body
-		# html#id#id2
-		# #id#id2
+		# '>html':       '<html></html>',
+		# '+html':       '<html></html>',
+		# '^html':       '<html></html>',
+		# 'html++body':  '<html></html>',
+		# 'html>>body':  '<html></html>',
+		# 'html^body':   '<html></html>',
+		# 'html#id#id2': '<html></html>',
+		# '#id#id2':     '<html></html>',
+		# '#id':         '<html></html>',
+		# '.class':      '<html></html>',
+
 		}
 
 
