@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-def emmet_stack_parents(o):
+def stack_parents(o):
 	def attach_at_parent(ct, s):
 		t = o(ct, s)
-		if issubclass(t.__class__, EmmetTagList):
+		if issubclass(t.__class__, TagList):
 			for obj in t:
 				obj.parent < obj
 				obj.parent.parent > obj
@@ -15,23 +15,23 @@ def emmet_stack_parents(o):
 	return attach_at_parent
 
 
-emmet_operators = {
+operators = {
 	# positioning
-	'>': lambda ct, s: ct > EmmetTag(s),  # child
-	'+': lambda ct, s: ct.parent > EmmetTag(s),  # sibling
-	'^': lambda ct, s: ct.parent.parent > EmmetTag(s) if not callable(ct) else emmet_stack_parents(ct),  # parent
+	'>': lambda ct, s: ct > Tag(s),  # child
+	'+': lambda ct, s: ct.parent > Tag(s),  # sibling
+	'^': lambda ct, s: ct.parent.parent > Tag(s) if not callable(ct) else stack_parents(ct),  # parent
 
 	# attributes and special attributes
-	'#': lambda ct, s: ct + EmmetAttribute('id', s),  # attribute
+	'#': lambda ct, s: ct + Attribute('id', s),  # attribute
 	'[': None,  # custom attributes
 	']': None,
-	'.': lambda ct, s: ct + EmmetAttribute('class', s),  # class
+	'.': lambda ct, s: ct + Attribute('class', s),  # class
 
 	'{': None,  # text
 	'}': None,
 
 	# operation applies to one or multiple tags and even tag structures
-	'*': lambda ct, s: EmmetTagList([ct] + [ct.parent > ct.clone() for i in range(int(s) - 1)]),  # multiplication
+	'*': lambda ct, s: TagList([ct] + [ct.parent > ct.clone() for i in range(int(s) - 1)]),  # multiplication
 	'(': None,  # grouping
 	')': None,
 
@@ -42,7 +42,7 @@ emmet_operators = {
 }
 
 
-class EmmetAttribute():
+class Attribute():
 	def __init__(self, name, value=''):
 		self.name = name
 		if type(value) == list:
@@ -73,7 +73,7 @@ class EmmetAttribute():
 		return a
 
 
-class EmmetTag():
+class Tag():
 	def __init__(self, name):
 		self.parent = None
 		# children could also be operations, grouping is evil
@@ -119,7 +119,7 @@ class EmmetTag():
 		return t
 
 
-class EmmetTagList():
+class TagList():
 	def __init__(self, objs):
 		if type(objs) in (list, set):
 			self.objs = objs
@@ -169,7 +169,7 @@ class Emmet():
 		return o
 
 
-def emmet_parse(emmet):
+def parse(emmet):
 	# base element
 	e = Emmet()
 	# current object
@@ -180,7 +180,7 @@ def emmet_parse(emmet):
 	s = ''
 
 	for c in emmet:
-		if c not in emmet_operators.keys():
+		if c not in operators.keys():
 			if c == ' ':
 				continue
 			s += c
@@ -189,21 +189,21 @@ def emmet_parse(emmet):
 				ct = o(ct, s)
 				s = ''
 				o = None
-			o = emmet_operators[c](o, s) if o else emmet_operators[c]
+			o = operators[c](o, s) if o else operators[c]
 			if ct is e and s:
-				ct = e > EmmetTag(s)
+				ct = e > Tag(s)
 				s = ''
 
 	# fall back, end of string reached
 	if s and (o or ct is e):
 		if ct is e:
-			e > EmmetTag(s)
+			e > Tag(s)
 		else:
 			o(ct, s)
 	return e
 
 
-emmet_tests = {
+tests = {
 		# simple tags
 		'html': '<html></html>',
 
@@ -263,18 +263,18 @@ emmet_tests = {
 		}
 
 
-emmet_test_results = {
+test_results = {
 		True: 'pass',
 		False: 'failure',
 		}
 
 
-def emmet_test_write(t, snip):
-	for k, v in emmet_tests.items():
+def test_write(t, snip):
+	for k, v in tests.items():
 		try:
-			e = emmet_parse(k)
+			e = parse(k)
 			ok = str(e) == v
-			snip += '%s: %s' % (k, emmet_test_results[ok])
+			snip += '%s: %s' % (k, test_results[ok])
 			if not ok:
 				snip += '---------------- got:'
 				snip += str(e)
@@ -283,16 +283,16 @@ def emmet_test_write(t, snip):
 				snip += '----------------'
 		except Exception as err:
 			import traceback
-			snip += '%s: %s' % (k, emmet_test_results[False])
+			snip += '%s: %s' % (k, test_results[False])
 			snip += traceback.format_exc()
 
 
-def emmet_write(t, snip):
+def write(t, snip):
 	if not t[1]:
 		snip += 'Syntax: http://docs.emmet.io/abbreviations/syntax/'
 		return
 	try:
-		e = emmet_parse(t[1])
+		e = parse(t[1])
 		if e:
 			snip += str(e)
 	except Exception as err:
