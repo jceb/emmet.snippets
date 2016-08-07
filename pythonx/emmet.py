@@ -93,7 +93,7 @@ class Attribute():
 			res.append(nv)
 		if not res:
 			jm.inc
-		return '%s="%s"' % (self.name, ' '.join(res), '$%d' % jm.c if jm.count and res else '')
+		return '%s="%s%s"' % (self.name, ' '.join(res), '$%d' % jm.c if jm.count and res else '')
 
 	def __eq__(self, a):
 		return a and a.name == self.name
