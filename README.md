@@ -14,7 +14,7 @@ for quickly generating HTML and XML tags and attributes.
 # Usage
 
 * Open a HTML or XML file in vim
-* Type `e` on an emty line
+* Type `e` on an empty line
 * Press `<Tab>` to expand the snippet
 * Start typing something that matches [emmet's
   syntax](http://docs.emmet.io/abbreviations/syntax/), e.g.
@@ -41,8 +41,8 @@ Item numbering, `$`, can behave in two ways when combined with multiplication,
 multiplication just takes the tags direct multiplier into account.  The variable
 `g:emmet_stacked_multiplication` controls the behavior.
 
-To enable stacked multiplication set `let g:emmet_stacked_multiplication=1`
-(defualt).
+To enable stacked multiplication execute `let g:emmet_stacked_multiplication=1`
+(default).
 ```
 # ul.list$*3>li.item$$*3
 <ul class="list1">
@@ -62,7 +62,8 @@ To enable stacked multiplication set `let g:emmet_stacked_multiplication=1`
 </ul>
 ```
 
-To enable non-stacked multiplication set `let g:emmet_stacked_multiplication=0`.
+To enable non-stacked multiplication execute `let
+g:emmet_stacked_multiplication=0`.
 ```
 # ul.list$*3>li.item$$*3
 <ul class="list1">
