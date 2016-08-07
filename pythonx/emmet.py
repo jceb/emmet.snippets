@@ -26,6 +26,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
 def stack_parents(o):
 	def attach_at_parent(ct, s):
 		t = o(ct, s)
