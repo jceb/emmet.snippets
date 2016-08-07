@@ -7,7 +7,8 @@ for quickly generating HTML and XML tags and attributes.
 # Features
 
 * Reasonable amount of tests implemented
-* Live generation of elements and attributes
+* Live generation of elements and id and class attributes
+* Honors indentation
 
 # Usage
 
@@ -29,7 +30,7 @@ for quickly generating HTML and XML tags and attributes.
     enough to clone the repository in `~/.vim/bundle`
 * Test the functionality by opening a new buffer in vim `:vs`.  Change
   `filetype` to html `setf html`.  Write `et` and press `<Tab>` to expand the
-  snippet to perform a self test
+  snippet and perform a self test
   * All tests should pass
 
 
@@ -47,11 +48,9 @@ for quickly generating HTML and XML tags and attributes.
   stops](https://github.com/SirVer/ultisnips/tree/master/doc/examples/tabstop-generation)
   are not implemented yet
 * Python 3 only
-* vim's indentation is not taken into account, tabs only and it always starts at
-  column 0
 * No abbreviations implemented
 
-# Related Work
+# Related Works
 
 * [emmet-vim](https://github.com/mattn/emmet-vim)
 * [Sparkup](https://github.com/rstacruz/sparkup)

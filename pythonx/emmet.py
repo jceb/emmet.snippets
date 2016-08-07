@@ -319,7 +319,10 @@ def write(t, snip):
 	try:
 		e = parse(t[1])
 		if e:
-			snip += str(e)
+			for line in str(e).split('\n'):
+				snip.reset_indent()
+				snip.shift(line.count('\t'))
+				snip += line.replace('\t', '')
 	except Exception as err:
 		import traceback
 		snip += traceback.format_exc()
