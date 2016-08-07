@@ -7,7 +7,7 @@ for quickly generating HTML and XML tags and attributes.
 # Features
 
 * Live generation of elements and id and class attributes
-* Fully supported syntax elements: `>`, `+`, `^`, `#`, `*`
+* Fully supported syntax elements: `>`, `+`, `^`, `#`, `*`, `$`
 * Proper indentation
 * Reasonable amount of tests implemented
 
@@ -34,12 +34,59 @@ for quickly generating HTML and XML tags and attributes.
   snippet and perform a self test
   * All tests should pass
 
+# Configuration
+
+Item numbering, `$`, can behave in two ways when combined with multiplication,
+`*`.  Stacked multiplication combines all previous modifiers while non-stacked
+multiplication just takes the tags direct multiplier into account.  The variable
+`g:emmet_stacked_multiplication` controls the behavior.
+
+To enable stacked multiplication set `let g:emmet_stacked_multiplication=1`
+(defualt).
+```
+# ul.list$*3>li.item$$*3
+<ul class="list1">
+    <li class="item01"></li>
+    <li class="item02"></li>
+    <li class="item03"></li>
+</ul>
+<ul class="list2">
+    <li class="item04"></li>
+    <li class="item05"></li>
+    <li class="item06"></li>
+</ul>
+<ul class="list3">
+    <li class="item07"></li>
+    <li class="item08"></li>
+    <li class="item09"></li>
+</ul>
+```
+
+To enable non-stacked multiplication set `let g:emmet_stacked_multiplication=0`.
+```
+# ul.list$*3>li.item$$*3
+<ul class="list1">
+    <li class="item01"></li>
+    <li class="item02"></li>
+    <li class="item03"></li>
+</ul>
+<ul class="list2">
+    <li class="item01"></li>
+    <li class="item02"></li>
+    <li class="item03"></li>
+</ul>
+<ul class="list3">
+    <li class="item01"></li>
+    <li class="item02"></li>
+    <li class="item03"></li>
+</ul>
+```
+
 # Known Issues
 
 * Not all syntax elements are supported yet.  The following are missing:
   * Grouping: `(..)`
   * Custom attributes: `[..]`
-  * Item numbering: `$`
   * Changing numbering base and direction: `@-` and `@N`
   * Text: `{..}`
 * Almost no error handling implemented

@@ -57,12 +57,11 @@ operators = {
 	'}': None,
 
 	# operation applies to one or multiple tags and even tag structures
-	'*': lambda ct, s: TagList([ct] + [ct.parent > ct.clone() for i in range(int(s) - 1)]),  # multiplication
+	'*': lambda ct, s: TagList([ct.setmul(end=int(s))] + [ct.parent > ct.clone(i) for i in range(2, int(s) + 1)]) if not issubclass(ct.__class__, TagList) else ct.clone(int(s)),  # multiplication
 	'(': None,  # grouping
 	')': None,
 
 	# in combination with multiplication
-	'$': None,  # item numbering, applies to class and attributes
 	'@-': None,  # change direction of numbering
 	'@[0-9]*': None,  # change number to start with
 }
@@ -76,12 +75,23 @@ class Attribute():
 		else:
 			self.value = [value]
 
-		self.padding = 0  # succes probably
-		self.start = 1
-		self.ascending = True
-
-	def __str__(self):
-		return '%s="%s"' % (self.name, ' '.join(self.value))
+	def tostr(self, mul=1):
+		res = []
+		for v in self.value:
+			nv = ''
+			pad = 0
+			for c in v:
+				if pad and c != '$':
+					nv += ('%0' + str(pad) + 'd') % mul
+					pad = 0
+				if c == '$':
+					pad += 1
+				else:
+					nv += c
+			if pad:
+				nv += ('%0' + str(pad) + 'd') % mul
+			res.append(nv)
+		return '%s="%s"' % (self.name, ' '.join(res))
 
 	def __eq__(self, a):
 		return a and a.name == self.name
@@ -108,16 +118,18 @@ class Tag():
 		self.name = name
 		# children could include operations
 		self.attributes = []
-		self.text = None
+		self.mul_pos = 1
+		self.mul_end = 1
 
-	def tostr(self, level=0):
+	def tostr(self, level=0, mul=1):
+		_mul = self.mul_end * (mul - 1) + self.mul_pos if STACKED_MULTIPLICATION else self.mul_pos
 		return '%(indent)s<%(name)s%(attributes)s>%(block)s%(children)s%(blockindent)s</%(name)s>' % {
 				'name': self.name,
 				'indent': '\t' * level,
 				'block': ('\n' if self.children else ''),
 				'blockindent': ('\n' + ('\t' * level) if self.children else ''),
-				'children': '\n'.join(map(lambda t: t.tostr(level + 1), self.children)),
-				'attributes': (' ' if self.attributes else '') + ' '.join(map(lambda a: str(a), self.attributes)),
+				'children': '\n'.join(map(lambda t: t.tostr(level=level + 1, mul=_mul), self.children)),
+				'attributes': (' ' if self.attributes else '') + ' '.join(map(lambda a: a.tostr(mul=_mul), self.attributes)),
 				}
 
 	def __gt__(self, t):
@@ -136,12 +148,17 @@ class Tag():
 			self.attributes[self.attributes.index(a)] + a
 		return self
 
-	def clone(self):
+	def setmul(self, pos=1, end=1):
+		self.mul_pos = pos
+		self.mul_end = end
+		return self
+
+	def clone(self, mul=1):
 		t = self.__class__(self.name)
 		t.children = [c.clone() for c in self.children]
 		t.attributes = [a.clone() for a in self.attributes]
-		t.text = self.text
 		t.parent = self.parent
+		t.setmul(mul, end=self.mul_end)
 		return t
 
 
@@ -180,6 +197,16 @@ class TagList():
 	def __add__(self, a):
 		return self._iter_objs(lambda obj, a: obj + a.clone(), a)
 
+	def clone(self, mul=1):
+		nobjs = []
+		for obj in self:
+			nobjs += [obj.setmul(end=mul)] + [obj.parent > obj.clone(i) for i in range(2, mul + 1)]
+		self.objs = nobjs
+		return self
+
+
+STACKED_MULTIPLICATION = True
+
 
 class Emmet():
 	def __init__(self):
@@ -187,6 +214,9 @@ class Emmet():
 		self.children = []
 
 	def __str__(self):
+		global STACKED_MULTIPLICATION
+		import vim
+		STACKED_MULTIPLICATION = int(vim.vars.get('emmet_stacked_multiplication', 1))
 		return '\n'.join([t.tostr() for t in self.children])
 
 	def __gt__(self, o):
@@ -230,7 +260,8 @@ def parse(emmet):
 
 
 tests = {
-		## functionality tests
+		# functionality tests
+		# -------------------
 
 		# simple tags
 		'html': '<html></html>',
@@ -262,6 +293,7 @@ tests = {
 		# multiplication
 		'html*3':                     '<html></html>\n<html></html>\n<html></html>',
 		'html*2>body':                '<html>\n\t<body></body>\n</html>\n<html>\n\t<body></body>\n</html>',
+		'html*2>body*2':              '<html>\n\t<body></body>\n\t<body></body>\n</html>\n<html>\n\t<body></body>\n\t<body></body>\n</html>',
 		'html*2>body>h1':             '<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>\n<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>',
 		'html*2>body#body':           '<html>\n\t<body id="body"></body>\n</html>\n<html>\n\t<body id="body"></body>\n</html>',
 		'html*2>body>h1#h1':          '<html>\n\t<body>\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>\n<html>\n\t<body>\n\t\t<h1 id="h1"></h1>\n\t</body>\n</html>',
@@ -273,8 +305,16 @@ tests = {
 		'html*2>body>h1^html2':       '<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n\t<html2></html2>\n</html>\n<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n\t<html2></html2>\n</html>',
 		'html*2>body>h1^^html2':      '<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>\n<html>\n\t<body>\n\t\t<h1></h1>\n\t</body>\n</html>\n<html2></html2>\n<html2></html2>',
 
+		# item numbering
+		'ul>li.item$*1':   '<ul>\n\t<li class="item1"></li>\n</ul>',
+		'ul>li.item$$*1':  '<ul>\n\t<li class="item01"></li>\n</ul>',
+		'ul>li.item$*2':   '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>',
+		'ul>li.item$$*2':  '<ul>\n\t<li class="item01"></li>\n\t<li class="item02"></li>\n</ul>',
+		'ul>li.it$em$*2':  '<ul>\n\t<li class="it1em1"></li>\n\t<li class="it2em2"></li>\n</ul>',
+		'ul*2>li.item$*2': '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>\n<ul>\n\t<li class="item3"></li>\n\t<li class="item4"></li>\n</ul>',
 
-		## error handling
+		# error handling
+		# --------------
 
 		# ignore whitespace
 		'html ':       '<html></html>',
