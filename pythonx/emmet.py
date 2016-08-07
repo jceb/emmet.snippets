@@ -75,7 +75,7 @@ class Attribute():
 		else:
 			self.value = [value]
 
-	def tostr(self, mul=1):
+	def tostr(self, jm, mul=1):
 		res = []
 		for v in self.value:
 			nv = ''
@@ -91,7 +91,9 @@ class Attribute():
 			if pad:
 				nv += ('%0' + str(pad) + 'd') % mul
 			res.append(nv)
-		return '%s="%s"' % (self.name, ' '.join(res))
+		if not res:
+			jm.inc
+		return '%s="%s"' % (self.name, ' '.join(res), '$%d' % jm.c if jm.count and res else '')
 
 	def __eq__(self, a):
 		return a and a.name == self.name
@@ -121,15 +123,16 @@ class Tag():
 		self.mul_pos = 1
 		self.mul_end = 1
 
-	def tostr(self, level=0, mul=1):
+	def tostr(self, jm, level=0, mul=1):
 		_mul = self.mul_end * (mul - 1) + self.mul_pos if STACKED_MULTIPLICATION else self.mul_pos
+		c = jm.inc
 		return '%(indent)s<%(name)s%(attributes)s>%(block)s%(children)s%(blockindent)s</%(name)s>' % {
 				'name': self.name,
 				'indent': '\t' * level,
-				'block': ('\n' if self.children else ''),
+				'block': ('\n' if self.children else ('$%d' % c if jm.count else '')),
 				'blockindent': ('\n' + ('\t' * level) if self.children else ''),
-				'children': '\n'.join(map(lambda t: t.tostr(level=level + 1, mul=_mul), self.children)),
-				'attributes': (' ' if self.attributes else '') + ' '.join(map(lambda a: a.tostr(mul=_mul), self.attributes)),
+				'children': '\n'.join(map(lambda t: t.tostr(jm, level=level + 1, mul=_mul), self.children)),
+				'attributes': (' ' if self.attributes else '') + ' '.join(map(lambda a: a.tostr(jm, mul=_mul), self.attributes)),
 				}
 
 	def __gt__(self, t):
@@ -214,15 +217,29 @@ class Emmet():
 		self.children = []
 
 	def __str__(self):
-		global STACKED_MULTIPLICATION
-		import vim
-		STACKED_MULTIPLICATION = int(vim.vars.get('emmet_stacked_multiplication', 1))
-		return '\n'.join([t.tostr() for t in self.children])
+		return self.tostr(Jumpcount())
 
 	def __gt__(self, o):
 		o.parent = self
 		self.children.append(o)
 		return o
+
+	def tostr(self, jm):
+		global STACKED_MULTIPLICATION
+		import vim
+		STACKED_MULTIPLICATION = int(vim.vars.get('emmet_stacked_multiplication', 1))
+		return '\n'.join([t.tostr(jm) for t in self.children])
+
+
+class Jumpcount():
+	def __init__(self, count=False):
+		self.c = 1
+		self.count = count
+
+	@property
+	def inc(self):
+		self.c += 1
+		return self.c
 
 
 def parse(emmet):
@@ -313,6 +330,8 @@ tests = {
 		'ul>li.it$em$*2':  '<ul>\n\t<li class="it1em1"></li>\n\t<li class="it2em2"></li>\n</ul>',
 		'ul*2>li.item$*2': '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>\n<ul>\n\t<li class="item3"></li>\n\t<li class="item4"></li>\n</ul>',
 
+		# item numbering base
+
 		# error handling
 		# --------------
 
@@ -373,3 +392,23 @@ def write(t, snip):
 	except Exception as err:
 		import traceback
 		snip += traceback.format_exc()
+
+
+def post_jump(snip):
+	if snip.snippet_start[0] + 1 < snip.snippet_end[0] or \
+			not snip.buffer[snip.snippet_end[0]].strip().startswith('Syntax: http://docs.emmet.io/abbreviations/syntax/'):
+		# reload emmet contents, expensive but I don't know how else to
+		# transport the Emmet object .. a global variable might cause some
+		# trouble if in parallel a second snippet is expanded
+		e_line = snip.buffer[snip.snippet_start[0]]
+		# delete first line
+		del snip.buffer[snip.snippet_start[0]:snip.snippet_end[0]]
+
+		i = e_line.index('#')
+		ind = ''
+		if i != -1:
+			ind = e_line[:i]
+		e = parse(e_line.lstrip()[2:])
+		snip.buffer[snip.snippet_start[0]+1] = ind
+
+		snip.expand_anon(e.tostr(Jumpcount(True)))

@@ -6,9 +6,11 @@ for quickly generating HTML and XML tags and attributes.
 
 # Features
 
-* Live generation of elements and id and class attributes
+* Live generation of tags and id and class attributes
 * Fully supported syntax elements: `>`, `+`, `^`, `#`, `*`, `$`
 * Proper indentation
+* Dynamic jumps to tags without children and attributes without values
+* First line of text is deleted automatically after the first jump
 * Reasonable amount of tests implemented
 
 # Usage
@@ -91,10 +93,6 @@ g:emmet_stacked_multiplication=0`.
   * Changing numbering base and direction: `@-` and `@N`
   * Text: `{..}`
 * Almost no error handling implemented
-* First line containing the emmet string remains
-* [Dynamic tab
-  stops](https://github.com/SirVer/ultisnips/tree/master/doc/examples/tabstop-generation)
-  are not implemented yet
 * Python 3 only
 * No abbreviations implemented
 * No support for CSS, SASS and other syntaxes
