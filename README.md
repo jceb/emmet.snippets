@@ -6,9 +6,10 @@ for quickly generating HTML and XML tags and attributes.
 
 # Features
 
-* Reasonable amount of tests implemented
 * Live generation of elements and id and class attributes
-* Honors indentation
+* Fully supported syntax elements: `>`, `+`, `^`, `#`, `*`
+* Proper indentation
+* Reasonable amount of tests implemented
 
 # Usage
 
@@ -33,7 +34,6 @@ for quickly generating HTML and XML tags and attributes.
   snippet and perform a self test
   * All tests should pass
 
-
 # Known Issues
 
 * Not all syntax elements are supported yet.  The following are missing:
@@ -49,6 +49,7 @@ for quickly generating HTML and XML tags and attributes.
   are not implemented yet
 * Python 3 only
 * No abbreviations implemented
+* No support for CSS, SASS and other syntaxes
 
 # Related Works
 
