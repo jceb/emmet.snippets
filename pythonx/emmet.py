@@ -93,7 +93,7 @@ class Attribute():
 			res.append(nv)
 		if not res:
 			jm.inc
-		return '%s="%s%s"' % (self.name, ' '.join(res), '$%d' % jm.c if jm.count and res else '')
+		return '%s="%s%s"' % (self.name, '$%d' % jm.c if (jm.count and not res) else '', ' '.join(res))
 
 	def __eq__(self, a):
 		return a and a.name == self.name
@@ -125,6 +125,7 @@ class Tag():
 
 	def tostr(self, jm, level=0, mul=1):
 		_mul = self.mul_end * (mul - 1) + self.mul_pos if STACKED_MULTIPLICATION else self.mul_pos
+		attrs = (' ' if self.attributes else '') + ' '.join(map(lambda a: a.tostr(jm, mul=_mul), self.attributes))
 		c = jm.inc
 		return '%(indent)s<%(name)s%(attributes)s>%(block)s%(children)s%(blockindent)s</%(name)s>' % {
 				'name': self.name,
@@ -132,7 +133,7 @@ class Tag():
 				'block': ('\n' if self.children else ('$%d' % c if jm.count else '')),
 				'blockindent': ('\n' + ('\t' * level) if self.children else ''),
 				'children': '\n'.join(map(lambda t: t.tostr(jm, level=level + 1, mul=_mul), self.children)),
-				'attributes': (' ' if self.attributes else '') + ' '.join(map(lambda a: a.tostr(jm, mul=_mul), self.attributes)),
+				'attributes': attrs,
 				}
 
 	def __gt__(self, t):
