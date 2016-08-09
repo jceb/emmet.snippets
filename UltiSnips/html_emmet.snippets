@@ -6,7 +6,7 @@ import emmet
 endglobal
 
 snippet et "Test Emmet interpolation" b
-# $1`!p emmet.test_write(t, snip)`
+# $1`!p import test_emmet; test_emmet.test_write(t, snip)`
 endsnippet
 
 post_jump "emmet.post_jump(snip)"
