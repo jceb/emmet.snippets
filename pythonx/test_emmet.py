@@ -81,7 +81,7 @@ tests = {
 		'ul>li.item$*2':   '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>',
 		'ul>li.item$$*2':  '<ul>\n\t<li class="item01"></li>\n\t<li class="item02"></li>\n</ul>',
 		'ul>li.it$em$*2':  '<ul>\n\t<li class="it1em1"></li>\n\t<li class="it2em2"></li>\n</ul>',
-		'ul*2>li.item$*2': '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>\n<ul>\n\t<li class="item3"></li>\n\t<li class="item4"></li>\n</ul>',
+		'ul*2>li.item$*2': '<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>\n<ul>\n\t<li class="item1"></li>\n\t<li class="item2"></li>\n</ul>',
 
 		# item numbering base
 

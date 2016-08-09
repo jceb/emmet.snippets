@@ -212,7 +212,7 @@ class TagList():
 		return self.__class__(set([obj.parent for obj in self]))
 
 
-STACKED_MULTIPLICATION = True
+STACKED_MULTIPLICATION = False
 
 
 class Emmet():
@@ -230,7 +230,7 @@ class Emmet():
 	def tostr(self, jm):
 		global STACKED_MULTIPLICATION
 		import vim
-		STACKED_MULTIPLICATION = int(vim.vars.get('emmet_stacked_multiplication', 1))
+		STACKED_MULTIPLICATION = int(vim.vars.get('emmet_stacked_multiplication', 0))
 		return '\n'.join([t.tostr(jm) for t in self.children])
 
 

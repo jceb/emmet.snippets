@@ -43,8 +43,28 @@ Item numbering, `$`, can behave in two ways when combined with multiplication,
 multiplication just takes the tags direct multiplier into account.  The variable
 `g:emmet_stacked_multiplication` controls the behavior.
 
-To enable stacked multiplication execute `let g:emmet_stacked_multiplication=1`
-(default).
+To enable non-stacked multiplication execute `let
+g:emmet_stacked_multiplication=0` (default).
+```
+# ul.list$*3>li.item$$*3
+<ul class="list1">
+    <li class="item01"></li>
+    <li class="item02"></li>
+    <li class="item03"></li>
+</ul>
+<ul class="list2">
+    <li class="item01"></li>
+    <li class="item02"></li>
+    <li class="item03"></li>
+</ul>
+<ul class="list3">
+    <li class="item01"></li>
+    <li class="item02"></li>
+    <li class="item03"></li>
+</ul>
+```
+
+To enable stacked multiplication execute `let g:emmet_stacked_multiplication=1`.
 ```
 # ul.list$*3>li.item$$*3
 <ul class="list1">
@@ -61,27 +81,6 @@ To enable stacked multiplication execute `let g:emmet_stacked_multiplication=1`
     <li class="item07"></li>
     <li class="item08"></li>
     <li class="item09"></li>
-</ul>
-```
-
-To enable non-stacked multiplication execute `let
-g:emmet_stacked_multiplication=0`.
-```
-# ul.list$*3>li.item$$*3
-<ul class="list1">
-    <li class="item01"></li>
-    <li class="item02"></li>
-    <li class="item03"></li>
-</ul>
-<ul class="list2">
-    <li class="item01"></li>
-    <li class="item02"></li>
-    <li class="item03"></li>
-</ul>
-<ul class="list3">
-    <li class="item01"></li>
-    <li class="item02"></li>
-    <li class="item03"></li>
 </ul>
 ```
 
