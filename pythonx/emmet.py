@@ -27,6 +27,7 @@
 # SOFTWARE.
 
 
+# wrapper function for stacking multiple "attach at parent tag" operations
 def stack_parents(o):
 	def attach_at_parent(ct, s):
 		t = o(ct, s)
@@ -41,6 +42,7 @@ def stack_parents(o):
 	return attach_at_parent
 
 
+# Emmet syntax objects and that directly implement the required functionality
 operators = {
 	# positioning
 	'>': lambda ct, s: ct > Tag(s),  # child
@@ -71,6 +73,9 @@ operators = {
 
 
 class Attribute():
+	"""
+	Representation of a single attribute that belongs to a tag
+	"""
 	def __init__(self, name, value=''):
 		self.name = name
 		if type(value) == list:
@@ -115,6 +120,9 @@ class Attribute():
 
 
 class Tag():
+	"""
+	Representation of a single XML/HTML tag
+	"""
 	def __init__(self, name):
 		self.parent = None
 		# children could also be operations, grouping is evil
@@ -170,6 +178,9 @@ class Tag():
 
 
 class TagList():
+	"""
+	Wrapper around Tags that might appear in groups if multiplication is used
+	"""
 	def __init__(self, objs):
 		if type(objs) in (list, set):
 			self.objs = objs
@@ -216,6 +227,9 @@ STACKED_MULTIPLICATION = False
 
 
 class Emmet():
+	"""
+	Base class for stacking emmet syntax elements and turing them into text
+	"""
 	def __init__(self):
 		self.children = []
 
@@ -235,6 +249,14 @@ class Emmet():
 
 
 class Jumpcount():
+	"""
+	Object for counting jumps figuring out the current jump id in order to
+	implement dynamic jumps.  Jumps have to be represent by $N which doesn't
+	look good in the preview.  Therefore, the output of the write function
+	doesn't include jump ids.  They are added later on by the post_jump function
+	that passes the resulting string to snip.expand_anon which will remove the
+	jump ids before showing the results to the user.
+	"""
 	def __init__(self, count=False):
 		self.c = 1
 		self.count = count
@@ -245,9 +267,14 @@ class Jumpcount():
 		return self.c
 
 
+# global variable to transport Emmet object to post_jump function
 E = None
 
+
 def parse(emmet):
+	"""
+	Main method to parse the user's input and create an Emmet object structure
+	"""
 	# base element
 	e = Emmet()
 	# current object
@@ -282,6 +309,9 @@ def parse(emmet):
 
 
 def write(t, snip):
+	"""
+	Entrance function called by the snippet
+	"""
 	global E
 	if not t[1]:
 		snip += 'Syntax: http://docs.emmet.io/abbreviations/syntax/'
@@ -300,6 +330,10 @@ def write(t, snip):
 
 
 def post_jump(snip):
+	"""
+	Called right before the user tries to jump to the first jump point.  It ends
+	the user's input and passes all jump points to UltiSnips
+	"""
 	if E and (snip.snippet_start[0] + 1 < snip.snippet_end[0] or \
 			not snip.buffer[snip.snippet_end[0]].lstrip().startswith('Syntax: http://docs.emmet.io/abbreviations/syntax/')):
 		# extract indentation
