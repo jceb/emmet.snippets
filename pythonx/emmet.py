@@ -245,6 +245,8 @@ class Jumpcount():
 		return self.c
 
 
+E = None
+
 def parse(emmet):
 	# base element
 	e = Emmet()
@@ -280,6 +282,7 @@ def parse(emmet):
 
 
 def write(t, snip):
+	global E
 	if not t[1]:
 		snip += 'Syntax: http://docs.emmet.io/abbreviations/syntax/'
 		return
@@ -290,17 +293,16 @@ def write(t, snip):
 				snip.reset_indent()
 				snip.shift(line.count('\t'))
 				snip += line.replace('\t', '')
+			E = e
 	except Exception as err:
 		import traceback
 		snip += traceback.format_exc()
 
 
 def post_jump(snip):
-	if snip.snippet_start[0] + 1 < snip.snippet_end[0] or \
-			not snip.buffer[snip.snippet_end[0]].strip().startswith('Syntax: http://docs.emmet.io/abbreviations/syntax/'):
-		# reload emmet contents, expensive but I don't know how else to
-		# transport the Emmet object .. a global variable might cause some
-		# trouble if in parallel a second snippet is expanded
+	if E and (snip.snippet_start[0] + 1 < snip.snippet_end[0] or \
+			not snip.buffer[snip.snippet_end[0]].lstrip().startswith('Syntax: http://docs.emmet.io/abbreviations/syntax/')):
+		# extract indentation
 		e_line = snip.buffer[snip.snippet_start[0]]
 		# delete first line
 		del snip.buffer[snip.snippet_start[0]:snip.snippet_end[0]]
@@ -309,7 +311,6 @@ def post_jump(snip):
 		ind = ''
 		if i != -1:
 			ind = e_line[:i]
-		e = parse(e_line.lstrip()[2:])
 		snip.buffer[snip.snippet_start[0]+1] = ind
 
-		snip.expand_anon(e.tostr(Jumpcount(True)))
+		snip.expand_anon(E.tostr(Jumpcount(True)))
