@@ -75,6 +75,21 @@ class Attribute():
 		else:
 			self.value = [value]
 
+	def __add__(self, a):
+		if a == self:
+			if self.name == 'class':
+				self.value += a.value
+			else:
+				self.value[0] = a.value
+		return self
+
+	def __eq__(self, a):
+		return a and a.name == self.name
+
+	def clone(self):
+		a = self.__class__(self.name, self.value[:])
+		return a
+
 	def tostr(self, jm, mul=1):
 		res = []
 		for v in self.value:
@@ -95,21 +110,6 @@ class Attribute():
 			jm.inc
 		return '%s="%s"' % (self.name, ' '.join(res) if res or not jm.count else '$%d' % jm.c, )
 
-	def __eq__(self, a):
-		return a and a.name == self.name
-
-	def __add__(self, a):
-		if a == self:
-			if self.name == 'class':
-				self.value += a.value
-			else:
-				self.value[0] = a.value
-		return self
-
-	def clone(self):
-		a = self.__class__(self.name, self.value[:])
-		return a
-
 
 class Tag():
 	def __init__(self, name):
@@ -122,6 +122,35 @@ class Tag():
 		self.attributes = []
 		self.mul_pos = 1
 		self.mul_end = 1
+
+	def __add__(self, a):
+		if a not in self.attributes:
+			self.attributes.append(a)
+		else:
+			self.attributes[self.attributes.index(a)] + a
+		return self
+
+	def __gt__(self, t):
+		t.parent = self
+		self.children.append(t)
+		return t
+
+	def __lt__(self, t):
+		self.children.remove(t)
+		return t
+
+	def clone(self, mul=1):
+		t = self.__class__(self.name)
+		t.children = [c.clone() for c in self.children]
+		t.attributes = [a.clone() for a in self.attributes]
+		t.parent = self.parent
+		t.setmul(mul, end=self.mul_end)
+		return t
+
+	def setmul(self, pos=1, end=1):
+		self.mul_pos = pos
+		self.mul_end = end
+		return self
 
 	def tostr(self, jm, level=0, mul=1):
 		_mul = self.mul_end * (mul - 1) + self.mul_pos if STACKED_MULTIPLICATION else self.mul_pos
@@ -136,35 +165,6 @@ class Tag():
 				'attributes': attrs,
 				}
 
-	def __gt__(self, t):
-		t.parent = self
-		self.children.append(t)
-		return t
-
-	def __lt__(self, t):
-		self.children.remove(t)
-		return t
-
-	def __add__(self, a):
-		if a not in self.attributes:
-			self.attributes.append(a)
-		else:
-			self.attributes[self.attributes.index(a)] + a
-		return self
-
-	def setmul(self, pos=1, end=1):
-		self.mul_pos = pos
-		self.mul_end = end
-		return self
-
-	def clone(self, mul=1):
-		t = self.__class__(self.name)
-		t.children = [c.clone() for c in self.children]
-		t.attributes = [a.clone() for a in self.attributes]
-		t.parent = self.parent
-		t.setmul(mul, end=self.mul_end)
-		return t
-
 
 class TagList():
 	def __init__(self, objs):
@@ -175,9 +175,19 @@ class TagList():
 		else:
 			self.objs = (objs, )
 
+	def __add__(self, a):
+		return self._iter_objs(lambda obj, a: obj + a.clone(), a)
+
+	def __gt__(self, t):
+		return self._iter_objs(lambda obj, t: obj > t.clone(), t)
+
 	def __iter__(self):
 		for obj in self.objs:
 			yield obj
+
+	def __lt__(self, t):
+		# not sure if it makes sense to implement this function
+		pass
 
 	def _iter_objs(self, f, o):
 		res = []
@@ -187,20 +197,6 @@ class TagList():
 			return res[0]
 		return self.__class__(res)
 
-	@property
-	def parent(self):
-		return self.__class__(set([obj.parent for obj in self]))
-
-	def __lt__(self, t):
-		# not sure if it makes sense to implement this function
-		pass
-
-	def __gt__(self, t):
-		return self._iter_objs(lambda obj, t: obj > t.clone(), t)
-
-	def __add__(self, a):
-		return self._iter_objs(lambda obj, a: obj + a.clone(), a)
-
 	def clone(self, mul=1):
 		nobjs = []
 		for obj in self:
@@ -208,22 +204,25 @@ class TagList():
 		self.objs = nobjs
 		return self
 
+	@property
+	def parent(self):
+		return self.__class__(set([obj.parent for obj in self]))
+
 
 STACKED_MULTIPLICATION = True
 
 
 class Emmet():
 	def __init__(self):
-		# nicht tags, opps
 		self.children = []
-
-	def __str__(self):
-		return self.tostr(Jumpcount())
 
 	def __gt__(self, o):
 		o.parent = self
 		self.children.append(o)
 		return o
+
+	def __str__(self):
+		return self.tostr(Jumpcount())
 
 	def tostr(self, jm):
 		global STACKED_MULTIPLICATION
