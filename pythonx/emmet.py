@@ -402,7 +402,11 @@ def post_jump(snip):
 		# trouble if in parallel a second snippet is expanded
 		e_line = snip.buffer[snip.snippet_start[0]]
 		# delete first line
-		del snip.buffer[snip.snippet_start[0]:snip.snippet_end[0]]
+		if '__delslice__' in dir(snip.buffer):
+			del snip.buffer[snip.snippet_start[0]:snip.snippet_end[0]]
+		else:
+			for i in range(snip.snippet_start[0], snip.snippet_end[0]):
+				del snip.buffer[i]
 
 		i = e_line.index('#')
 		ind = ''
