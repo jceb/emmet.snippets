@@ -57,7 +57,10 @@ operators = {
 	'}': None,
 
 	# operation applies to one or multiple tags and even tag structures
-	'*': lambda ct, s: TagList([ct.setmul(end=int(s))] + [ct.parent > ct.clone(i) for i in range(2, int(s) + 1)]) if not issubclass(ct.__class__, TagList) else ct.clone(int(s)),  # multiplication
+	'*': lambda ct, s: TagList([ct.setmul(end=int(s))] + \
+			[ct.parent > ct.clone(i) for i in range(2, int(s) + 1)]) \
+			if not issubclass(ct.__class__, TagList) else \
+			ct.clone(int(s)),  # multiplication
 	'(': None,  # grouping
 	')': None,
 
