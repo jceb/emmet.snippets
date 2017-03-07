@@ -43,8 +43,10 @@ def stack_parents(o):
 
 
 # Emmet syntax objects and that directly implement the required functionality
-O_TEXT     = '{'
-O_TEXT_END = '}'
+O_C_ATTR     = '['
+O_C_ATTR_END = ']'
+O_TEXT       = '{'
+O_TEXT_END   = '}'
 
 operators = {
 	# positioning
@@ -55,8 +57,8 @@ operators = {
 	# attributes and special attributes
 	'#': lambda ct, s: ct + Attribute('id', s),  # attribute
 
-	'[': None,  # custom attributes
-	']': None,
+	O_C_ATTR:     lambda ct, s: ct + Attribute.parse(s),  # custom attributes
+	O_C_ATTR_END: None,
 
 	'.': lambda ct, s: ct + Attribute('class', s),  # class
 
@@ -153,6 +155,56 @@ class Attribute():
 			jm.inc
 		return '%s="%s"' % (self.name, ' '.join(res) if res or not jm.count else '$%d' % jm.c)
 
+	@classmethod
+	def parse(cls, s):
+		"""
+		Parse string into attributes
+		"""
+		attrs = []
+		a = '' # attribute
+		v = '' # value
+		q = '' # quote string
+		i = '' # incomplete string
+		for c in s:
+			if c in ('"', "'"):
+				if not a:
+					continue
+				if not q:
+					q = c
+					continue
+				if q and q == c:
+					q = ''
+					if not (a and i):
+						i = ''
+						continue
+					v = i
+					i = ''
+					attrs.append(Attribute(a, v))
+					a = ''
+					v = ''
+					continue
+			elif c == '=':
+				if not i:
+					continue
+				a = i
+				i = ''
+			else:
+				if c in (' ', '\t') and not q:
+					if not (a and i):
+						i = ''
+						continue
+					v = i
+					i = ''
+					attrs.append(Attribute(a, v))
+					a = ''
+					v = ''
+					continue
+				i += c
+
+		if a and i:
+			v = i
+			attrs.append(Attribute(a, v))
+		return attrs
 
 class Tag():
 	"""
@@ -174,10 +226,13 @@ class Tag():
 		if isinstance(a, Text):
 			self.text = a
 		else:
-			if a not in self.attributes:
-				self.attributes.append(a)
-			else:
-				self.attributes[self.attributes.index(a)] + a
+			if not isinstance(a, list):
+				a = [a]
+			for e in a:
+				if e not in self.attributes:
+					self.attributes.append(e)
+				else:
+					self.attributes[self.attributes.index(e)] + e
 		return self
 
 	def __gt__(self, t):
@@ -232,6 +287,8 @@ class TagList():
 			self.objs = (objs, )
 
 	def __add__(self, a):
+		if isinstance(a, list):
+			return self._iter_objs(lambda obj, a: obj + [e.clone() for e in a], a)
 		return self._iter_objs(lambda obj, a: obj + a.clone(), a)
 
 	def __gt__(self, t):
@@ -331,8 +388,9 @@ def parse(emmet):
 
 	for c in emmet:
 		if c not in ops_keys or \
-				(o_trigger == O_TEXT and c != O_TEXT_END):
-			if c == ' ' and o_trigger != O_TEXT:
+				(o_trigger == O_TEXT and c != O_TEXT_END) or \
+				(o_trigger == O_C_ATTR and c != O_C_ATTR_END):
+			if c == ' ' and o_trigger not in (O_TEXT, O_C_ATTR):
 				continue
 			s += c
 		else:

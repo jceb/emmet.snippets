@@ -86,11 +86,17 @@ tests = {
 		# item numbering base
 
 		# text
-		'html{text}': '<html>text</html>',
-		'html{text$}': '<html>text1</html>',
-		'html{text$}>body':   '<html>text1\n\t<body></body>\n</html>',
-		'html{text$}>body>p{text$}^head':       '<html>text1\n\t<body>\n\t\t<p>text1</p>\n\t</body>\n\t<head></head>\n</html>',
-		'ul*2>li.item$*2{item nr. $}': '<ul>\n\t<li class="item1">item nr. 1</li>\n\t<li class="item2">item nr. 2</li>\n</ul>\n<ul>\n\t<li class="item1">item nr. 1</li>\n\t<li class="item2">item nr. 2</li>\n</ul>',
+		'html{text}':                     '<html>text</html>',
+		'html{text$}':                    '<html>text1</html>',
+		'html{text$}>body':               '<html>text1\n\t<body></body>\n</html>',
+		'html{text$}>body>p{text$}^head': '<html>text1\n\t<body>\n\t\t<p>text1</p>\n\t</body>\n\t<head></head>\n</html>',
+		'ul*2>li.item$*2{item nr. $}':    '<ul>\n\t<li class="item1">item nr. 1</li>\n\t<li class="item2">item nr. 2</li>\n</ul>\n<ul>\n\t<li class="item1">item nr. 1</li>\n\t<li class="item2">item nr. 2</li>\n</ul>',
+
+		# custom attributes
+		'td.test[title="Hello world!" colspan=3]': '<td class="test" title="Hello world!" colspan="3"></td>',
+		'td.test[title="Hello world!" colspan=$]*3': '<td class="test" title="Hello world!" colspan="1"></td>\n<td class="test" title="Hello world!" colspan="2"></td>\n<td class="test" title="Hello world!" colspan="3"></td>',
+		'tr*2>td{my text$}*3': '<tr>\n\t<td>my text1</td>\n\t<td>my text2</td>\n\t<td>my text3</td>\n</tr>\n<tr>\n\t<td>my text1</td>\n\t<td>my text2</td>\n\t<td>my text3</td>\n</tr>',
+		'tr*2>td.test[title="Hello world!" colspan=$]*3': '<tr>\n\t<td class="test" title="Hello world!" colspan="1"></td>\n\t<td class="test" title="Hello world!" colspan="2"></td>\n\t<td class="test" title="Hello world!" colspan="3"></td>\n</tr>\n<tr>\n\t<td class="test" title="Hello world!" colspan="1"></td>\n\t<td class="test" title="Hello world!" colspan="2"></td>\n\t<td class="test" title="Hello world!" colspan="3"></td>\n</tr>',
 
 		# error handling
 		# --------------

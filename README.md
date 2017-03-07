@@ -7,7 +7,7 @@ for quickly generating HTML and XML tags and attributes.
 # Features
 
 * Live generation of tags and id and class attributes
-* Fully supported syntax elements: `>`, `+`, `^`, `#`, `*`, `$`, `{` and `}`
+* Fully supported syntax elements: `>`, `+`, `^`, `#`, `*`, `$`, `{..}`, `[..]`
 * Proper indentation
 * Dynamic jumps to tags without children and attributes without values
 * First line of text is deleted automatically after the first jump
@@ -88,7 +88,6 @@ To enable stacked multiplication execute `let g:emmet_stacked_multiplication=1`.
 
 * Not all syntax elements are supported yet.  The following are missing:
   * Grouping: `(..)`
-  * Custom attributes: `[..]`
   * Changing numbering base and direction: `@-` and `@N`
 * Almost no error handling implemented
 * Python 3 only
