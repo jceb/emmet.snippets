@@ -93,6 +93,7 @@ tests = {
 		'ul*2>li.item$*2{item nr. $}':    '<ul>\n\t<li class="item1">item nr. 1</li>\n\t<li class="item2">item nr. 2</li>\n</ul>\n<ul>\n\t<li class="item1">item nr. 1</li>\n\t<li class="item2">item nr. 2</li>\n</ul>',
 
 		# custom attributes
+		'td.test[title colspan=3]': '<td class="test" title="" colspan="3"></td>',
 		'td.test[title="Hello world!" colspan=3]': '<td class="test" title="Hello world!" colspan="3"></td>',
 		'td.test[title="Hello world!" colspan=$]*3': '<td class="test" title="Hello world!" colspan="1"></td>\n<td class="test" title="Hello world!" colspan="2"></td>\n<td class="test" title="Hello world!" colspan="3"></td>',
 		'tr*2>td{my text$}*3': '<tr>\n\t<td>my text1</td>\n\t<td>my text2</td>\n\t<td>my text3</td>\n</tr>\n<tr>\n\t<td>my text1</td>\n\t<td>my text2</td>\n\t<td>my text3</td>\n</tr>',

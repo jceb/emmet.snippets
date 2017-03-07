@@ -174,7 +174,7 @@ class Attribute():
 					continue
 				if q and q == c:
 					q = ''
-					if not (a and i):
+					if not a:
 						i = ''
 						continue
 					v = i
@@ -190,9 +190,11 @@ class Attribute():
 				i = ''
 			else:
 				if c in (' ', '\t') and not q:
-					if not (a and i):
-						i = ''
+					if not (i or a):
 						continue
+					if not a:
+						a = i
+						i = ''
 					v = i
 					i = ''
 					attrs.append(Attribute(a, v))
@@ -201,7 +203,10 @@ class Attribute():
 					continue
 				i += c
 
-		if a and i:
+		if i and not a:
+			a = i
+			i =''
+		if a:
 			v = i
 			attrs.append(Attribute(a, v))
 		return attrs
