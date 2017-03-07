@@ -43,6 +43,9 @@ def stack_parents(o):
 
 
 # Emmet syntax objects and that directly implement the required functionality
+O_TEXT     = '{'
+O_TEXT_END = '}'
+
 operators = {
 	# positioning
 	'>': lambda ct, s: ct > Tag(s),  # child
@@ -51,18 +54,21 @@ operators = {
 
 	# attributes and special attributes
 	'#': lambda ct, s: ct + Attribute('id', s),  # attribute
+
 	'[': None,  # custom attributes
 	']': None,
+
 	'.': lambda ct, s: ct + Attribute('class', s),  # class
 
-	'{': None,  # text
-	'}': None,
+	O_TEXT:     lambda ct, s: ct + Text(s),  # text
+	O_TEXT_END: None,
 
 	# operation applies to one or multiple tags and even tag structures
 	'*': lambda ct, s: TagList([ct.setmul(end=int(s))] + \
 			[ct.parent > ct.clone(i) for i in range(2, int(s) + 1)]) \
 			if not issubclass(ct.__class__, TagList) else \
 			ct.clone(int(s)),  # multiplication
+
 	'(': None,  # grouping
 	')': None,
 
@@ -70,6 +76,35 @@ operators = {
 	'@-': None,  # change direction of numbering
 	'@[0-9]*': None,  # change number to start with
 }
+
+
+class Text():
+	"""
+	Representation of text
+	"""
+	def __init__(self, value=''):
+		self.value = value
+
+	def clone(self):
+		t = self.__class__(self.value)
+		return t
+
+	def tostr(self, jm, mul=1):
+		nv = ''
+		pad = 0
+		for c in self.value:
+			if pad and c != '$':
+				nv += ('%0' + str(pad) + 'd') % mul
+				pad = 0
+			if c == '$':
+				pad += 1
+			else:
+				nv += c
+		if pad:
+			nv += ('%0' + str(pad) + 'd') % mul
+		if not nv:
+			jm.inc
+		return nv if nv or not jm.count else '$%d' % jm.c
 
 
 class Attribute():
@@ -116,7 +151,7 @@ class Attribute():
 			res.append(nv)
 		if not res:
 			jm.inc
-		return '%s="%s"' % (self.name, ' '.join(res) if res or not jm.count else '$%d' % jm.c, )
+		return '%s="%s"' % (self.name, ' '.join(res) if res or not jm.count else '$%d' % jm.c)
 
 
 class Tag():
@@ -125,6 +160,7 @@ class Tag():
 	"""
 	def __init__(self, name):
 		self.parent = None
+		self.text = None
 		# children could also be operations, grouping is evil
 		self.children = []
 
@@ -135,10 +171,13 @@ class Tag():
 		self.mul_end = 1
 
 	def __add__(self, a):
-		if a not in self.attributes:
-			self.attributes.append(a)
+		if isinstance(a, Text):
+			self.text = a
 		else:
-			self.attributes[self.attributes.index(a)] + a
+			if a not in self.attributes:
+				self.attributes.append(a)
+			else:
+				self.attributes[self.attributes.index(a)] + a
 		return self
 
 	def __gt__(self, t):
@@ -155,6 +194,8 @@ class Tag():
 		t.children = [c.clone() for c in self.children]
 		t.attributes = [a.clone() for a in self.attributes]
 		t.parent = self.parent
+		if self.text:
+			t.text = self.text.clone()
 		t.setmul(mul, end=self.mul_end)
 		return t
 
@@ -167,8 +208,9 @@ class Tag():
 		_mul = self.mul_end * (mul - 1) + self.mul_pos if STACKED_MULTIPLICATION else self.mul_pos
 		attrs = (' ' if self.attributes else '') + ' '.join(map(lambda a: a.tostr(jm, mul=_mul), self.attributes))
 		c = jm.inc
-		return '%(indent)s<%(name)s%(attributes)s>%(block)s%(children)s%(blockindent)s</%(name)s>' % {
+		return '%(indent)s<%(name)s%(attributes)s>%(text)s%(block)s%(children)s%(blockindent)s</%(name)s>' % {
 				'name': self.name,
+				'text': self.text.tostr(jm, mul=_mul) if self.text else '',
 				'indent': '\t' * level,
 				'block': ('\n' if self.children else ('$%d' % c if jm.count else '')),
 				'blockindent': ('\n' + ('\t' * level) if self.children else ''),
@@ -277,16 +319,20 @@ def parse(emmet):
 	"""
 	# base element
 	e = Emmet()
-	# current object
+	# current tag object
 	ct = e
 	# operation
 	o = None
+	o_trigger = None
 	# string that has been read
 	s = ''
 
+	ops_keys = operators.keys()
+
 	for c in emmet:
-		if c not in operators.keys():
-			if c == ' ':
+		if c not in ops_keys or \
+				(o_trigger == O_TEXT and c != O_TEXT_END):
+			if c == ' ' and o_trigger != O_TEXT:
 				continue
 			s += c
 		else:
@@ -294,6 +340,7 @@ def parse(emmet):
 				ct = o(ct, s)
 				s = ''
 				o = None
+				o_trigger = c
 			o = operators[c](o, s) if o else operators[c]
 			if ct is e and s:
 				ct = e > Tag(s)

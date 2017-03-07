@@ -85,6 +85,13 @@ tests = {
 
 		# item numbering base
 
+		# text
+		'html{text}': '<html>text</html>',
+		'html{text$}': '<html>text1</html>',
+		'html{text$}>body':   '<html>text1\n\t<body></body>\n</html>',
+		'html{text$}>body>p{text$}^head':       '<html>text1\n\t<body>\n\t\t<p>text1</p>\n\t</body>\n\t<head></head>\n</html>',
+		'ul*2>li.item$*2{item nr. $}': '<ul>\n\t<li class="item1">item nr. 1</li>\n\t<li class="item2">item nr. 2</li>\n</ul>\n<ul>\n\t<li class="item1">item nr. 1</li>\n\t<li class="item2">item nr. 2</li>\n</ul>',
+
 		# error handling
 		# --------------
 
@@ -93,6 +100,7 @@ tests = {
 		'html > body': '<html>\n\t<body></body>\n</html>',
 
 		# test wrong input
+		# '{text}': '<html>text</html>',
 		# '>html':       '<html></html>',
 		# '+html':       '<html></html>',
 		# '^html':       '<html></html>',
