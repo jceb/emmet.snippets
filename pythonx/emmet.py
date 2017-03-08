@@ -104,9 +104,8 @@ class Text():
 				nv += c
 		if pad:
 			nv += ('%0' + str(pad) + 'd') % mul
-		if not nv:
-			jm.inc
-		return nv if nv or not jm.count else '$%d' % jm.c
+		jm.inc
+		return nv if not jm.count else '${%d:%s}' % (jm.c, nv)
 
 
 class Attribute():
@@ -151,9 +150,8 @@ class Attribute():
 			if pad:
 				nv += ('%0' + str(pad) + 'd') % mul
 			res.append(nv)
-		if not res:
-			jm.inc
-		return '%s="%s"' % (self.name, ' '.join(res) if res or not jm.count else '$%d' % jm.c)
+		jm.inc
+		return '%s="%s"' % (self.name, ' '.join(res) if not jm.count else '${%d:%s}' % (jm.c, ' '.join(res)))
 
 	@classmethod
 	def parse(cls, s):
@@ -211,6 +209,7 @@ class Attribute():
 			attrs.append(Attribute(a, v))
 		return attrs
 
+
 class Tag():
 	"""
 	Representation of a single XML/HTML tag
@@ -267,12 +266,16 @@ class Tag():
 	def tostr(self, jm, level=0, mul=1):
 		_mul = self.mul_end * (mul - 1) + self.mul_pos if STACKED_MULTIPLICATION else self.mul_pos
 		attrs = (' ' if self.attributes else '') + ' '.join(map(lambda a: a.tostr(jm, mul=_mul), self.attributes))
-		c = jm.inc
+		b = '\n'
+		if not self.children:
+			b = ''
+			if jm.count and not self.text:
+				b = '$%d' % jm.inc
 		return '%(indent)s<%(name)s%(attributes)s>%(text)s%(block)s%(children)s%(blockindent)s</%(name)s>' % {
 				'name': self.name,
 				'text': self.text.tostr(jm, mul=_mul) if self.text else '',
 				'indent': '\t' * level,
-				'block': ('\n' if self.children else ('$%d' % c if jm.count else '')),
+				'block': b,
 				'blockindent': ('\n' + ('\t' * level) if self.children else ''),
 				'children': '\n'.join(map(lambda t: t.tostr(jm, level=level + 1, mul=_mul), self.children)),
 				'attributes': attrs,
