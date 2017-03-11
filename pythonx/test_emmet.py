@@ -145,8 +145,24 @@ tests = {
 		# default attributes
 		'a':       ('<a href=""></a>',
 					'<a href="$2">$3</a>'),
-		'link':       ('<link rel="stylesheet" href=""></link>',
-					'<link rel="${2:stylesheet}" href="$3">$4</link>'),
+		'link':       ('<link rel="stylesheet" href="" type="text/css" />',
+					'<link rel="${2:stylesheet}" href="$3" type="${4:text/css}" />'),
+	
+		# non block tags
+		'span>a+a':       ('<span><a href=""></a><a href=""></a></span>',
+							'<span><a href="$2">$3</a><a href="$4">$5</a></span>'),
+		'span>a+a+span':       ('<span><a href=""></a><a href=""></a><span></span></span>',
+								'<span><a href="$2">$3</a><a href="$4">$5</a><span>$6</span></span>'),
+
+		# short close tags
+		'input':       ('<input id="" name="" type="" />',
+						'<input id="$2" name="$3" type="$4" />'),
+		'input.myclass':       ('<input id="" name="" type="" class="myclass" />',
+								'<input id="$2" name="$3" type="$4" class="${5:myclass}" />'),
+		'input>test':       ('<input id="" name="" type=""><test></test></input>',
+							'<input id="$2" name="$3" type="$4"><test>$5</test></input>'),
+		'input{test}':       ('<input id="" name="" type="">test</input>',
+								'<input id="$2" name="$3" type="$4">${5:test}</input>'),
 
 		# error handling
 		# --------------

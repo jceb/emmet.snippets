@@ -231,6 +231,8 @@ class Tag():
 		self.children = []
 
 		self.name = name
+		self.self_closing = self.name in SELF_CLOSING_TAGS
+		self.inline = self.name in INLINE_TAGS
 		# children could include operations
 		self.attributes = []
 		self.mul_pos = 1
@@ -281,17 +283,23 @@ class Tag():
 		_mul = self.mul_end * (mul - 1) + self.mul_pos if STACKED_MULTIPLICATION else self.mul_pos
 		attrs = (' ' if self.attributes else '') + ' '.join(map(lambda a: a.tostr(jm, mul=_mul), self.attributes))
 		b = '\n'
-		if not self.children:
+		if self.inline or not self.children:
 			b = ''
-			if jm.count and not self.text:
-				b = '$%d' % jm.inc
-		return '%(indent)s<%(name)s%(attributes)s>%(text)s%(block)s%(children)s%(blockindent)s</%(name)s>' % {
+		
+		template = '<%(name)s%(attributes)s>%(text)s%(block)s%(children)s%(blockindent)s</%(name)s>'
+		if self.self_closing and not (self.children or self.text):
+			 template = '<%(name)s%(attributes)s />'
+		elif self.inline:
+			template = '<%(name)s%(attributes)s>%(text)s%(children)s</%(name)s>'
+		template = ('' if self.parent and self.parent.inline else '%(indent)s') + template
+
+		return template % {
 				'name': self.name,
-				'text': self.text.tostr(jm, mul=_mul) if self.text else '',
+				'text': self.text.tostr(jm, mul=_mul) if self.text else '' if not jm.count or self.children else '$%d' % jm.inc,
 				'indent': '\t' * level,
 				'block': b,
-				'blockindent': ('\n' + ('\t' * level) if self.children else ''),
-				'children': '\n'.join(map(lambda t: t.tostr(jm, level=level + 1, mul=_mul), self.children)),
+				'blockindent': '\n' + ('\t' * level) if self.children else '',
+				'children': b.join(map(lambda t: t.tostr(jm, level=level + 1, mul=_mul), self.children)),
 				'attributes': attrs,
 				}
 
@@ -353,6 +361,7 @@ class Emmet():
 	"""
 	def __init__(self):
 		self.children = []
+		self.inline = False
 
 	def __gt__(self, o):
 		o.parent = self
@@ -392,13 +401,17 @@ class Jumpcount():
 E = None
 FT = None
 DEFAULT_ATTRIBUTES = {}
+INLINE_TAGS = []
+SELF_CLOSING_TAGS = []
 
 
 def _setup(ft):
 	import vim
-	global FT, DEFAULT_ATTRIBUTES
+	global FT, DEFAULT_ATTRIBUTES, INLINE_TAGS, SELF_CLOSING_TAGS
 	FT = ft
 	DEFAULT_ATTRIBUTES = vim.vars.get('emmet_%s_default_attributes' % FT, {})
+	INLINE_TAGS = vim.vars.get('emmet_%s_inline_tags' % FT, [])
+	SELF_CLOSING_TAGS = vim.vars.get('emmet_%s_self_closing_tags' % FT, [])
 
 
 def parse(emmet, ft):

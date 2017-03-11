@@ -64,6 +64,79 @@ let g:emmet_html_default_attributes_extension = {
 	\ })
 ```
 
+This will lead to the following tag and attributes when you type `a` in emmet:
+```
+# a
+<a href="" id="ID"></a>
+```
+
+## Inline tags
+
+Inline tags show child tags without creating a new line.  You can overwrite the
+inline tags configuration by assinging to the variable
+`g:emmet_FILETYPE_inline_tags` or extend the configuration by assigning to the
+variable `g:emmet_FILETYPE_inline_tags_extension`.  `FILETYPE` has to be
+replaced by the actual file type.  Currently the following file types are
+supported: `html`, `xml`, `xsl`, `xslt` and `docbk`.
+
+Example, overwrite configuration:
+```
+let g:emmet_html_inline_tags = [
+	\ 'a',
+	\ ])
+```
+
+Example, extend configuration:
+```
+let g:emmet_html_inline_tags_extension = [
+	\ 'a',
+	\ ])
+```
+
+Example inline vs. block tag:
+```
+Inline tag span:
+<span><a href=""></a></span>
+
+Block tag p:
+<p>
+    <a href=""></a>
+</p>
+```
+
+## Self closing tags
+
+Self closing tags are abbreviated by avoiding the closing tag.  You can
+overwrite the self closing tags configuration by assinging to the variable
+`g:emmet_FILETYPE_self_closing_tags` or extend the configuration by assigning to
+the variable `g:emmet_FILETYPE_self_closing_tags_extension`.  `FILETYPE` has to
+be replaced by the actual file type.  Currently the following file types are
+supported: `html`, `xml`, `xsl`, `xslt` and `docbk`.
+
+Example, overwrite configuration:
+```
+let g:emmet_html_self_closing_tags = [
+	\ 'br',
+	\ ])
+```
+
+Example, extend configuration:
+```
+let g:emmet_html_self_closing_tags_extension = [
+	\ 'br',
+	\ ])
+```
+
+Example inline vs. block tag:
+```
+Self closing tag br:
+<br />
+
+Non-self closing tag p:
+<p>
+</p>
+```
+
 ## Item Numbering
 
 Item numbering, `$`, can behave in two ways when combined with multiplication,
