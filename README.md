@@ -12,6 +12,7 @@ for quickly generating HTML and XML tags and attributes.
 * Dynamic jumps to tags without children and attributes without values
 * First line of text is deleted automatically after the first jump
 * Reasonable amount of tests implemented
+* Default attributes that are added to tags automatically
 
 # Usage
 
@@ -37,6 +38,33 @@ for quickly generating HTML and XML tags and attributes.
   * All tests should pass
 
 # Configuration
+
+## Default attributes
+
+Default attributes are added to tags automatically.  You can overwrite the
+default configuration by assinging to the variable
+`g:emmet_FILETYPE_default_attributes` or extend the configuration by assigning
+to the variable `g:emmet_FILETYPE_default_attributes_extension`.  `FILETYPE` has
+to be replaced by the actual file type.  Currently the following file types are
+supported: `html`, `xml`, `xsl`, `xslt` and `docbk`.
+
+Example, overwrite configuration:
+```
+let g:emmet_html_default_attributes = {
+	\ 'a': {'href': '', 'id': 'ID'},
+	\ 'p': {'name': ''},
+	\ })
+```
+
+Example, extend configuration:
+```
+let g:emmet_html_default_attributes_extension = {
+	\ 'a': {'href': '', 'id': 'ID'},
+	\ 'p': {'name': ''},
+	\ })
+```
+
+## Item Numbering
 
 Item numbering, `$`, can behave in two ways when combined with multiplication,
 `*`.  Stacked multiplication combines all previous modifiers while non-stacked

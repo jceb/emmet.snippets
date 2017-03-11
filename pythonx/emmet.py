@@ -105,7 +105,9 @@ class Text():
 		if pad:
 			nv += ('%0' + str(pad) + 'd') % mul
 		jm.inc
-		return nv if not jm.count else '${%d:%s}' % (jm.c, nv)
+		return '%s' % nv \
+				if not jm.count else \
+				'${%d:%s}' % (jm.c, nv) if nv else '$%d' % jm.c
 
 
 class Attribute():
@@ -149,9 +151,17 @@ class Attribute():
 					nv += c
 			if pad:
 				nv += ('%0' + str(pad) + 'd') % mul
-			res.append(nv)
+			if nv:
+				res.append(nv)
 		jm.inc
-		return '%s="%s"' % (self.name, ' '.join(res) if not jm.count else '${%d:%s}' % (jm.c, ' '.join(res)))
+		return '%(name)s="%(value)s"' % {
+			'name': self.name,
+			'value': \
+				' '.join(res) \
+				if not jm.count else \
+				'${%d:%s}' % (jm.c, ' '.join(res)) if res else '$%d' % jm.c
+			}
+
 
 	@classmethod
 	def parse(cls, s):
@@ -225,6 +235,10 @@ class Tag():
 		self.attributes = []
 		self.mul_pos = 1
 		self.mul_end = 1
+
+		# attach default tags
+		for k, v in DEFAULT_ATTRIBUTES.get(self.name, {}).items():
+			self + Attribute(k, v)
 
 	def __add__(self, a):
 		if isinstance(a, Text):
@@ -376,12 +390,22 @@ class Jumpcount():
 
 # global variable to transport Emmet object to post_jump function
 E = None
+FT = None
+DEFAULT_ATTRIBUTES = {}
 
 
-def parse(emmet):
+def _setup(ft):
+	import vim
+	global FT, DEFAULT_ATTRIBUTES
+	FT = ft
+	DEFAULT_ATTRIBUTES = vim.vars.get('emmet_%s_default_attributes' % FT, {})
+
+
+def parse(emmet, ft):
 	"""
 	Main method to parse the user's input and create an Emmet object structure
 	"""
+	_setup(ft)
 	# base element
 	e = Emmet()
 	# current tag object
@@ -430,7 +454,7 @@ def write(t, snip):
 		snip += 'Syntax: http://docs.emmet.io/abbreviations/syntax/'
 		return
 	try:
-		e = parse(t[1])
+		e = parse(t[1], snip.ft)
 		if e:
 			for line in str(e).split('\n'):
 				snip.reset_indent()

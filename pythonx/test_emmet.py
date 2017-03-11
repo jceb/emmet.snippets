@@ -132,7 +132,7 @@ tests = {
 
 		# custom attributes
 		'td.test[title colspan=3]':                       ('<td class="test" title="" colspan="3"></td>',
-															'<td class="${2:test}" title="${3:}" colspan="${4:3}">$5</td>'),
+															'<td class="${2:test}" title="$3" colspan="${4:3}">$5</td>'),
 		'td.test[title="Hello world!" colspan=3]':        ('<td class="test" title="Hello world!" colspan="3"></td>',
 															'<td class="${2:test}" title="${3:Hello world!}" colspan="${4:3}">$5</td>'),
 		'td.test[title="Hello world!" colspan=$]*3':      ('<td class="test" title="Hello world!" colspan="1"></td>\n<td class="test" title="Hello world!" colspan="2"></td>\n<td class="test" title="Hello world!" colspan="3"></td>',
@@ -141,6 +141,12 @@ tests = {
 															'<tr>\n\t<td>${2:my text1}</td>\n\t<td>${3:my text2}</td>\n\t<td>${4:my text3}</td>\n</tr>\n<tr>\n\t<td>${5:my text1}</td>\n\t<td>${6:my text2}</td>\n\t<td>${7:my text3}</td>\n</tr>'),
 		'tr*2>td.test[title="Hello world!" colspan=$]*3': ('<tr>\n\t<td class="test" title="Hello world!" colspan="1"></td>\n\t<td class="test" title="Hello world!" colspan="2"></td>\n\t<td class="test" title="Hello world!" colspan="3"></td>\n</tr>\n<tr>\n\t<td class="test" title="Hello world!" colspan="1"></td>\n\t<td class="test" title="Hello world!" colspan="2"></td>\n\t<td class="test" title="Hello world!" colspan="3"></td>\n</tr>',
 															'<tr>\n\t<td class="${2:test}" title="${3:Hello world!}" colspan="${4:1}">$5</td>\n\t<td class="${6:test}" title="${7:Hello world!}" colspan="${8:2}">$9</td>\n\t<td class="${10:test}" title="${11:Hello world!}" colspan="${12:3}">$13</td>\n</tr>\n<tr>\n\t<td class="${14:test}" title="${15:Hello world!}" colspan="${16:1}">$17</td>\n\t<td class="${18:test}" title="${19:Hello world!}" colspan="${20:2}">$21</td>\n\t<td class="${22:test}" title="${23:Hello world!}" colspan="${24:3}">$25</td>\n</tr>'),
+
+		# default attributes
+		'a':       ('<a href=""></a>',
+					'<a href="$2">$3</a>'),
+		'link':       ('<link rel="stylesheet" href=""></link>',
+					'<link rel="${2:stylesheet}" href="$3">$4</link>'),
 
 		# error handling
 		# --------------
@@ -187,7 +193,7 @@ test_results = {
 def test_write(t, snip):
 	for k, v in tests.items():
 		try:
-			e = emmet.parse(k)
+			e = emmet.parse(k, snip.ft)
 			r = str(e) 
 			ok = r == v[0]
 			snip += '%s: %s' % (k, test_results[ok])
