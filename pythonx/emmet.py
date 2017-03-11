@@ -230,7 +230,7 @@ class Tag():
 		# children could also be operations, grouping is evil
 		self.children = []
 
-		self.name = name
+		self.name = ABBREVIATIONS[name] if name in ABBREVIATIONS else name
 		self.self_closing = self.name in SELF_CLOSING_TAGS
 		self.inline = self.name in INLINE_TAGS
 		# children could include operations
@@ -403,15 +403,17 @@ FT = None
 DEFAULT_ATTRIBUTES = {}
 INLINE_TAGS = []
 SELF_CLOSING_TAGS = []
+ABBREVIATIONS = []
 
 
 def _setup(ft):
 	import vim
-	global FT, DEFAULT_ATTRIBUTES, INLINE_TAGS, SELF_CLOSING_TAGS
+	global FT, DEFAULT_ATTRIBUTES, INLINE_TAGS, SELF_CLOSING_TAGS, ABBREVIATIONS
 	FT = ft
 	DEFAULT_ATTRIBUTES = vim.vars.get('emmet_%s_default_attributes' % FT, {})
 	INLINE_TAGS = vim.vars.get('emmet_%s_inline_tags' % FT, [])
 	SELF_CLOSING_TAGS = vim.vars.get('emmet_%s_self_closing_tags' % FT, [])
+	ABBREVIATIONS = vim.vars.get('emmet_%s_abbreviations' % FT, {})
 
 
 def parse(emmet, ft):

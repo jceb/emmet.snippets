@@ -13,6 +13,8 @@ for quickly generating HTML and XML tags and attributes.
 * First line of text is deleted automatically after the first jump
 * Reasonable amount of tests implemented
 * Default attributes that are added to tags automatically
+* Default settings and configuration for inline tags, non-block tags and
+  abbreviations for tag names
 
 # Usage
 
@@ -39,6 +41,29 @@ for quickly generating HTML and XML tags and attributes.
 
 # Configuration
 
+## Abbreviations
+
+Abbreviations are expanded into longer tags automatically.  You can overwrite the
+default configuration by assinging to the variable
+`g:emmet_FILETYPE_abbreviations` or extend the configuration by assigning
+to the variable `g:emmet_FILETYPE_abbreviations_extension`.  `FILETYPE` has
+to be replaced by the actual file type.  Currently the following file types are
+supported: `html`, `xml`, `xsl`, `xslt` and `docbk`.
+
+Example, overwrite configuration:
+```
+let g:emmet_html_default_attributes = {
+	\ 'bq': 'blockquote',
+	\ })
+```
+
+Example, extend configuration:
+```
+let g:emmet_html_default_attributes_extension = {
+	\ 'bq': 'blockquote',
+	\ })
+```
+
 ## Default attributes
 
 Default attributes are added to tags automatically.  You can overwrite the
@@ -52,7 +77,6 @@ Example, overwrite configuration:
 ```
 let g:emmet_html_default_attributes = {
 	\ 'a': {'href': '', 'id': 'ID'},
-	\ 'p': {'name': ''},
 	\ })
 ```
 
@@ -60,7 +84,6 @@ Example, extend configuration:
 ```
 let g:emmet_html_default_attributes_extension = {
 	\ 'a': {'href': '', 'id': 'ID'},
-	\ 'p': {'name': ''},
 	\ })
 ```
 
@@ -192,7 +215,6 @@ To enable stacked multiplication execute `let g:emmet_stacked_multiplication=1`.
   * Changing numbering base and direction: `@-` and `@N`
 * Almost no error handling implemented
 * Python 3 only
-* No abbreviations implemented
 * No support for CSS, SASS and other syntaxes
 
 # Related Works

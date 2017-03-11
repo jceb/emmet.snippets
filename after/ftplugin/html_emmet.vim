@@ -78,3 +78,38 @@ let g:emmet_html_self_closing_tags = get(g:, 'emmet_html_self_closing_tags', [
 			\ 'wbr',
 			\ ])
 call extend(g:emmet_html_self_closing_tags, get(g:, 'emmet_html_self_closing_tags_extension', []))
+
+let g:emmet_html_abbreviations = get(g:, 'emmet_html_abbreviations', {
+			\ "bq": "blockquote",
+			\ "fig": "figure",
+			\ "figc": "figcaption",
+			\ "pic": "picture",
+			\ "ifr": "iframe",
+			\ "emb": "embed",
+			\ "obj": "object",
+			\ "cap": "caption",
+			\ "colg": "colgroup",
+			\ "fst": "fieldset",
+			\ "btn": "button",
+			\ "optg": "optgroup",
+			\ "tarea": "textarea",
+			\ "leg": "legend",
+			\ "sect": "section",
+			\ "art": "article",
+			\ "hdr": "header",
+			\ "ftr": "footer",
+			\ "adr": "address",
+			\ "dlg": "dialog",
+			\ "str": "strong",
+			\ "prog": "progress",
+			\ "mn": "main",
+			\ "tem": "template",
+			\ "fset": "fieldset",
+			\ "datag": "datagrid",
+			\ "datal": "datalist",
+			\ "kg": "keygen",
+			\ "out": "output",
+			\ "det": "details",
+			\ "cmd": "command",
+			\ })
+call extend(g:emmet_html_abbreviations, get(g:, 'emmet_html_abbreviations_extensions', {}))

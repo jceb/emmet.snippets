@@ -9,3 +9,7 @@ call extend(g:emmet_docbk_inline_tags, get(g:, 'emmet_docbk_inline_tags_extensio
 let g:emmet_docbk_self_closing_tags = get(g:, 'emmet_docbk_self_closing_tags', [
 	\ ])
 call extend(g:emmet_docbk_self_closing_tags, get(g:, 'emmet_docbk_self_closing_tags_extension', []))
+
+let g:emmet_docbk_abbreviations = get(g:, 'emmet_docbk_abbreviations', {
+			\ })
+call extend(g:emmet_docbk_abbreviations, get(g:, 'emmet_docbk_abbreviations_extensions', {}))

@@ -168,6 +168,12 @@ tests = {
 		'input{test}':       ('<input id="" name="" type="">test</input>',
 								'<input id="$2" name="$3" type="$4">${5:test}</input>'),
 
+		# abbreviations
+		'bq':       ('<blockquote></blockquote>',
+					'<blockquote>$2</blockquote>'),
+		'bq>a>fig':       ('<blockquote><a href=""><figure></figure></a></blockquote>',
+							'<blockquote><a href="$2"><figure>$3</figure></a></blockquote>'),
+
 		# error handling
 		# --------------
 
