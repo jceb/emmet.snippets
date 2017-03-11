@@ -147,9 +147,9 @@ tests = {
 
 		# ignore whitespace
 		'html ':       ('<html></html>',
-				'<html>$2</html>'),
-		'html > body': ('<html>\n\t<body>$2</body>\n</html>',
-				'<html>\n\t<body>$2</body>\n</html>'),
+						'<html>$2</html>'),
+		'html > body': ('<html>\n\t<body></body>\n</html>',
+						'<html>\n\t<body>$2</body>\n</html>'),
 
 		# test wrong input
 		# '{text}': ('<html>text</html>',
