@@ -133,6 +133,10 @@ tests = {
 		# custom attributes
 		'td.test[title colspan=3]':                       ('<td class="test" title="" colspan="3"></td>',
 															'<td class="${2:test}" title="$3" colspan="${4:3}">$5</td>'),
+		'td.test[title="nr $" colspan=3]':                       ('<td class="test" title="nr 1" colspan="3"></td>',
+															'<td class="${2:test}" title="${3:nr 1}" colspan="${4:3}">$5</td>'),
+		'a[href="nr$"]':                       ('<a href="nr1"></a>',
+												'<a href="${2:nr1}">$3</a>'),
 		'td.test[title="Hello world!" colspan=3]':        ('<td class="test" title="Hello world!" colspan="3"></td>',
 															'<td class="${2:test}" title="${3:Hello world!}" colspan="${4:3}">$5</td>'),
 		'td.test[title="Hello world!" colspan=$]*3':      ('<td class="test" title="Hello world!" colspan="1"></td>\n<td class="test" title="Hello world!" colspan="2"></td>\n<td class="test" title="Hello world!" colspan="3"></td>',

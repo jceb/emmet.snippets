@@ -126,7 +126,7 @@ class Attribute():
 			if self.name == 'class':
 				self.value += a.value
 			else:
-				self.value[0] = a.value
+				self.value = a.value
 		return self
 
 	def __eq__(self, a):
